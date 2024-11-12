@@ -1,0 +1,5 @@
+wandb_project: "Drone_Classification_Models"
+data_root: "data/1/ntut_drone_train"
+batch_size: 32
+num_epochs: 1000
+model: "ghostnetv2"
