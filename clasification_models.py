@@ -2,6 +2,8 @@ import argparse
 import time
 from functools import partial
 from random import sample, random, choice
+from tkinter.ttk import Treeview
+
 import lightning.pytorch as L
 import pandas as pd
 import torch
@@ -90,7 +92,7 @@ class DroneClassificationModel(L.LightningModule):
 
 if __name__ == "__main__":
 
-    parser = argparse.ArgumentParser(description="Train a Drone Classification Model")
+    parser = argparse.ArgumentParser(description="Train a Drone Classification Model test")
     parser.add_argument("config", type=str, help="Path to the YAML configuration file")
     args = parser.parse_args()
 
@@ -102,6 +104,7 @@ if __name__ == "__main__":
     batch_size = config['batch_size']
     num_epochs = config['num_epochs']
     model_name = config['model']
+    use_checkpoint = True
 
     # Define root directory and transformations
     root_dir = 'data/1/ntut_drone_train'
@@ -127,8 +130,8 @@ if __name__ == "__main__":
 
 
     dataloader = DroneDataClasificationModule(
-        root_dir, train_transforms, val_transforms, batch_size=batch_size, overlap_train=0, overlap_val=0.1, num_workers=16,
-        prefetch_factor=3,
+        root_dir, train_transforms, val_transforms, batch_size=batch_size, overlap_train=0.35, overlap_val=0.1, num_workers=32,
+        prefetch_factor=2,
         pin_memory=True, ram_cache=True
     )
     dataloader.setup()
@@ -147,11 +150,15 @@ if __name__ == "__main__":
             model = ghostnetv2_1x(num_classes=1)
         else:
             model = get_model(model_name, weights=None, num_classes=1)
-
-        drone_model = DroneClassificationModel(model)
+        if use_checkpoint:
+            drone_model = DroneClassificationModel.load_from_checkpoint(
+                f'checkpoints/{model_name}/best-drone-classification.ckpt', model=model
+            )
+        else:
+            drone_model = DroneClassificationModel(model)
 
         # Callbacks and Trainer
-        early_stopping = EarlyStopping(monitor='val_loss', patience=15, mode='min', verbose=True)
+        early_stopping = EarlyStopping(monitor='val_loss', patience=7, mode='min', verbose=True)
         model_checkpoint = ModelCheckpoint(
             monitor='val_loss', dirpath=f'checkpoints/{model_name}/', filename='best-drone-classification',
             save_top_k=3, mode='min', verbose=True
@@ -169,7 +176,6 @@ if __name__ == "__main__":
 
         best_model_path = model_checkpoint.best_model_path
         val_loss = trainer.callback_metrics['val_loss'].item()
-        model_results.append({'Model': model_name, 'Val_Loss': val_loss, 'Best_Model_Path': best_model_path})
 
         print(f"Model {model_name} training complete. Best model saved at: {best_model_path}")
 

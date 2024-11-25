@@ -1,5 +1,6 @@
-wandb_project: "Drone_Classification_Models"
+wandb_project: "Drone_Classification_Models_retrain_V2"
 data_root: "data/1/ntut_drone_train"
 batch_size: 32
 num_epochs: 1000
 model: "ghostnetv2"
+use_checkpoint: True

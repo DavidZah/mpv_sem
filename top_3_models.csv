@@ -1,2 +1,0 @@
-Model,Val_Loss,Best_Model_Path
-efficientnet_b0,0.7113444209098816,/home/david/mpv_sem/checkpoints/efficientnet_b0/best-drone-classification-v19.ckpt

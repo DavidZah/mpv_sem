@@ -1,7 +1,8 @@
-wandb_project: "Drone_Classification_Models"
+wandb_project: "Drone_Classification_Models_V2"
 data_root: "data/1/ntut_drone_train"
 batch_size: 40
 num_epochs: 1000
 model: "mobilenet_v2"
 optimizer: "adam"
+use_checkpoint: True
 
